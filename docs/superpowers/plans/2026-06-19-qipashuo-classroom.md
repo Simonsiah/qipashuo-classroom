@@ -692,16 +692,17 @@ export function reduce(s: TimerState, a: TimerAction): TimerState {
   - Initial load fetches votes and renders the bar from `tally`.
   - A simulated realtime payload (new vote) updates the bar.
   - Key `t` toggles timer mode (single↔double via `SET_MODE`).
-  - Key ` ` (space) dispatches TOGGLE in single / SWITCH semantics in double, and primes audio on first press.
+  - Key ` ` (space): in single mode → TOGGLE. In double mode → if not running, TOGGLE to start the active bank; if already running, SWITCH to the other side (which keeps running). First press of any key also primes audio.
   - Keys `ArrowLeft`/`ArrowRight` dispatch ADJUST ∓30/±30.
   - Key `r` dispatches RESET.
   - Key `p` POSTs snapshot `pre`; key `f` POSTs snapshot `final` then shows reveal.
+  - Key `Escape` navigates back to Setup (`router.push('/')`).
   - A 1s `setInterval` (use `vi.useFakeTimers`) dispatches TICK while running.
   - Fallback: a periodic re-fetch updates the tally if no realtime event arrives.
 
 - [ ] **Step 2: Run, expect fail.**
 
-- [ ] **Step 3: Implement** — `useReducer(reduce, initTimer(...))`; subscribe to `votes` filtered by `room_id`; `useEffect` interval for TICK; `keydown` listener mapping the spec §8 keys; `p`/`f` call snapshot API then update local room status; render `<Arena .../>`. On `expired` transition, call `buzz()`.
+- [ ] **Step 3: Implement** — `useReducer(reduce, initTimer(...))`; subscribe to `votes` filtered by `room_id`; `useEffect` interval for TICK; `keydown` listener mapping the spec §8 keys (incl. `Escape` → `router.push('/')`); double-mode space = TOGGLE-to-start-if-paused else SWITCH; `p`/`f` call snapshot API then update local room status; render `<Arena .../>`. On `expired` transition, call `buzz()`.
 
 - [ ] **Step 4: Run, expect pass.**
 

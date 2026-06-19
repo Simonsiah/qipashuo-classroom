@@ -149,6 +149,29 @@ describe("StageClient", () => {
     expect(screen.getByTestId("clock-single")).toHaveTextContent("00:59");
   });
 
+  it("buzzes exactly once when the single timer reaches 0:00 and never re-fires", async () => {
+    render(<StageClient room={room} joinUrl="/room/1234/vote" />);
+    await flush();
+    expect(screen.getByTestId("clock-single")).toHaveTextContent("01:00");
+
+    key(" "); // start the single-mode countdown
+    expect(buzzMock).not.toHaveBeenCalled();
+
+    // Drive the clock all the way to zero (60s default).
+    act(() => {
+      vi.advanceTimersByTime(room.timer_default_seconds * 1000);
+    });
+    expect(screen.getByTestId("clock-single")).toHaveTextContent("00:00");
+    expect(buzzMock).toHaveBeenCalledTimes(1);
+
+    // Sitting at 0:00, further ticks must NOT re-fire the buzzer.
+    act(() => {
+      vi.advanceTimersByTime(5000);
+    });
+    expect(screen.getByTestId("clock-single")).toHaveTextContent("00:00");
+    expect(buzzMock).toHaveBeenCalledTimes(1);
+  });
+
   it("ArrowLeft / ArrowRight adjust the single clock", async () => {
     render(<StageClient room={room} joinUrl="/room/1234/vote" />);
     await flush();

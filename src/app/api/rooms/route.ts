@@ -79,7 +79,8 @@ export async function POST(request: Request) {
   }
 
   if (error || !data) {
-    return NextResponse.json({ error: "create_failed" }, { status: 500 });
+    console.error("[/api/rooms] Supabase insert error:", JSON.stringify(error));
+    return NextResponse.json({ error: "create_failed", detail: error }, { status: 500 });
   }
 
   return NextResponse.json({ code }, { status: 201 });

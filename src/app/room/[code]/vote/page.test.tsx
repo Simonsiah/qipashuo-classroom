@@ -38,8 +38,7 @@ function mockFetch() {
       json: async () => room,
     } as Response);
   });
-  // @ts-expect-error assign test mock
-  global.fetch = fetchMock;
+  global.fetch = fetchMock as unknown as typeof fetch;
   return fetchMock;
 }
 
@@ -105,8 +104,7 @@ describe("Vote page", () => {
         json: async () => ({ error: "room_not_found" }),
       } as Response),
     );
-    // @ts-expect-error assign test mock
-    global.fetch = fetchMock;
+    global.fetch = fetchMock as unknown as typeof fetch;
 
     render(<VotePage />);
     expect(await screen.findByText(/房间不存在/)).toBeInTheDocument();

@@ -22,6 +22,10 @@ A cloud-hosted web app for running 奇葩说-style (U Can U BiBi) debates as a c
 - A separate mobile teacher-control panel (single-machine keyboard only).
 - Showing vote percentages on phones (projector only — see §6).
 
+## 2a. Scale
+
+Target class size ~20 students (one projector + ~20 phones). Comfortably within Supabase free-tier limits: only the Stage holds a realtime subscription (phones vote via plain HTTP upserts, no held connection), versus a 200-concurrent-connection cap and 2M realtime messages/month. The architecture would hold at 100+; the only real-world bottleneck is classroom internet/WiFi quality, mitigated by HTTP voting + the Stage's periodic tally re-fetch fallback (§9).
+
 ## 3. Architecture
 
 - **Framework:** Next.js (App Router).

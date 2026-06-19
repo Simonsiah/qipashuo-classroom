@@ -34,7 +34,7 @@ A cloud-hosted web app for running 奇葩说-style (U Can U BiBi) debates as a c
 1. **Setup** — `/`
    Teacher fills in: topic, side A label (default `正方`), side B label (default `反方`), up to 3 debater names per side, timer default (mm:ss, default `02:00`). "Start" creates a room → generates a 4-digit code → navigates to the Stage.
 2. **Stage** — `/room/[code]`
-   The Arena projector display + the keyboard control surface. Subscribes to realtime votes. This is the screen shown on the projector and controlled by the teacher's keyboard.
+   The Arena projector display + the keyboard control surface. Subscribes to realtime votes. This is the screen shown on the projector and controlled by the teacher's keyboard. Room `status` flips `setup → live` the moment the room is created and the Stage opens (so phones can vote immediately), and `live → revealed` when the teacher presses `F`.
 3. **Vote** — `/join` (enter code) and `/room/[code]/vote` (the phone voting view, also reachable by scanning the Stage QR).
    Shows topic + two large buttons (side A / side B). Tapping casts/switches the vote. Highlights the student's current pick. No percentages, no names, no login.
 
@@ -87,11 +87,13 @@ Two modes, toggled live with `T`. Both default to the room's `timer_default_seco
 ### Timer end (0:00)
 - Buzzer sound + red flash on the expired clock.
 - (Double mode at 0:00: buzz + flash the expired side; it does not auto-switch in v1.)
+- **Audio unlock:** browsers block audio until a user gesture. The Stage primes/unlocks the buzzer on the first keypress (e.g. the first `SPACE`), so the first real buzzer isn't silent.
 
 ## 6. Voting & Swing
 
-- **One device one vote:** each phone generates a random `device_id` stored in its browser localStorage on first visit. Votes upsert by `(room_id, device_id)`. Switchable anytime. Not exam-grade (clearing storage / incognito allows a re-vote) — acceptable for a class game.
-- **Live bar (projector only):** updates in real time as votes arrive. Phones never show percentages (prevents bandwagon bias).
+- **One device one vote:** each phone generates a random `device_id` stored in its browser localStorage on first visit. The token is **persistent and reused across rooms** (generated once per browser), so the `(room_id, device_id)` unique constraint scopes one vote per device per room. Votes upsert by `(room_id, device_id)`. Switchable anytime. Not exam-grade (clearing storage / incognito allows a re-vote) — acceptable for a class game.
+- **No un-vote:** a student can only switch A↔B; there is no "withdraw to no-pick" state. Once cast, a device always counts toward exactly one side.
+- **Live bar (projector only):** updates in real time as votes arrive, computed from the **current live tally** (not from the pre/final snapshots). Phones never show percentages (prevents bandwagon bias).
 - **Swing flow (teacher keyboard):**
   1. `P` — lock `pre_vote_snapshot` (开场票) at the start.
   2. Debate happens; bar moves live.
